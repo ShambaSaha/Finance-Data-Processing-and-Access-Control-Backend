@@ -16,8 +16,8 @@ This is a backend system designed to manage financial records with role-based ac
 1. Clone the repository:
 
 ```bash
-git clone <your-repo-link>
-cd <project-folder>
+[git clone [<your-repo-link>](https://github.com/shamba-saha/finance-backend.git)
+cd <project-folder>](https://github.com/shamba-saha/finance-backend.git)
 ```
 
 2. Install dependencies:
