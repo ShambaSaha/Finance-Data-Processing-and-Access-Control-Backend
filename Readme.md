@@ -1,23 +1,21 @@
-# Finance Data Processing & Access Control Backend System
-
-## Overview
+# 💼 Finance Data Processing & Access Control Backend System
 
 This is a backend system designed to manage financial records with role-based access control. It provides APIs for handling transactions (income and expenses), along with summary endpoints for a dashboard.
 
-## Tech Stack
+# 💻 Tech Stack
 
 * Node.js
 * Express.js
 * MongoDB (Mongoose)
 * JSON Web Tokens (JWT) for authentication
 
-## Setup Instructions
+# ⚙️ Setup Instructions
 
 1. Clone the repository:
 
 ```bash
-[git clone [<your-repo-link>](https://github.com/shamba-saha/finance-backend.git)
-cd <project-folder>](https://github.com/shamba-saha/finance-backend.git)
+git clone https://github.com/ShambaSaha/Finance-Data-Processing-and-Access-Control-Backend.git
+cd Finance-Data-Processing-and-Access-Control-Backend
 ```
 
 2. Install dependencies:
@@ -26,7 +24,7 @@ cd <project-folder>](https://github.com/shamba-saha/finance-backend.git)
 npm install
 ```
 
-3. Create a `.env` file:
+3. Create a `.env` file in the root directory and add:
 
 ```env
 PORT=5000
@@ -42,35 +40,39 @@ npm run dev
 
 The server will run on `http://localhost:5000`.
 
-## Authentication and Roles
+# 🔐 Authentication and Roles
 
 The system uses JWT-based authentication. After logging in, the token must be included in request headers:
 
 ```
-Authorization: Bearer <token>
+Authorization: Bearer <your_token>
 ```
 
-### Roles
+## Role Permissions
 
-**Role	Permissions**
-Admin	Full access (CRUD records + user management)
-Analyst	Read records + access dashboard insights
-Viewer	Read-only access to dashboard
+| Role    | Access Level |
+|--------|-------------|
+| Admin  | Full access (create, update, delete records, manage users) |
+| Analyst| View records and access dashboard summaries |
+| Viewer | Read-only access to dashboard |
 
-**Authentication Flow**
+
+**Authentication Flow:**
 
 - User registers
 - Logs in to receive JWT token
 - Token is passed in headers:
 - Authorization: Bearer <token>
 
-## API Endpoints
+# 📁 API Documentation
 
-### Auth
+## 🔐 Auth
 
-**POST /api/auth/register**
+### **POST /api/auth/register**
 
+```
 Registers a new user.
+```
 
 ```json
 {
@@ -81,9 +83,11 @@ Registers a new user.
 }
 ```
 
-**POST /api/auth/login**
+### **POST /api/auth/login**
 
+```
 Returns a JWT token.
+```
 
 ```json
 {
@@ -92,11 +96,13 @@ Returns a JWT token.
 }
 ```
 
-### Records
+## 📊 Records
 
-**POST /api/records** (Admin only)
+### **POST /api/records** (Admin only)
 
+```
 Create a new financial record.
+```
 
 ```json
 {
@@ -108,13 +114,15 @@ Create a new financial record.
 }
 ```
 
-**GET /api/records**
+### **GET /api/records**
 
+```
 Fetch records with support for:
 
 * Filtering (`type`, `category`, date range)
 * Search (`search` on category and notes)
 * Pagination (`page`, `limit`)
+```
 
 Example:
 
@@ -122,20 +130,26 @@ Example:
 /api/records?search=food&type=expense&page=1
 ```
 
-**PUT /api/records/:id** (Admin only)
+### **PUT /api/records/:id** (Admin only)
 
+```
 Update an existing record.
+```
 
 
-**DELETE /api/records/:id**
+### **DELETE /api/records/:id**
 
+```
 Records are not permanently deleted. Instead, they are marked using an `isDeleted` flag and excluded from all queries.
 
 A restore endpoint is provided to revert a soft delete.
+```
 
-**PUT /api/records/restore/:id** (Admin only)
+### **PUT /api/records/restore/:id** (Admin only)
 
+```
 Restores a soft-deleted record by setting `isDeleted` back to `false`.
+```
 
 Response:
 
@@ -146,10 +160,11 @@ Response:
 }
 ```
 
-### Dashboard
+## 📈 Dashboard
 
-**GET /api/dashboard**
+### **GET /api/dashboard**
 
+```
 Returns a summary including:
 
 * Total income
@@ -158,21 +173,41 @@ Returns a summary including:
 * Category-wise totals
 * Monthly trends (income vs expense)
 * Recent records
+```
 
-**GET /api/dashboard/category**
-
+### **GET /api/dashboard/category**
+```
 Category-wise totals.
+```
 
-**GET /api/dashboard/monthly**
-
+### **GET /api/dashboard/monthly**
+```
 Monthly aggregation with separate income and expense values.
+```
 
-**GET /api/dashboard/recent**
-
+### **GET /api/dashboard/recent**
+```
 Latest records (limited set).
+```
+
+## **API Endpoints Summary**
+
+| Method | Endpoint | Description | Access |
+|--------|----------|------------|--------|
+| POST | /api/auth/register | Register user | Public |
+| POST | /api/auth/login | Login user | Public |
+| POST | /api/records | Create record | Admin |
+| GET | /api/records | Get records (filter, search, pagination) | All |
+| PUT | /api/records/:id | Update record | Admin |
+| DELETE | /api/records/:id | Soft delete record | Admin |
+| PUT | /api/records/restore/:id | Restore deleted record | Admin |
+| GET | /api/dashboard | Full dashboard summary | All |
+| GET | /api/dashboard/category | Category totals | All |
+| GET | /api/dashboard/monthly | Monthly trends | All |
+| GET | /api/dashboard/recent | Recent activity | All |
 
 
-## Key Features
+# 🔍 **Key Features**
 
 ### 1. Search and Filtering
 
@@ -186,22 +221,22 @@ Pagination is supported to avoid returning large datasets in a single request.
 
 Records are not permanently removed. Instead, they are marked using an `isDeleted` flag and excluded from all queries.
 
-### 3. Restore Functionality
+### 4. Restore Functionality
 
-Records are not permanently removed. Restore functionality to recover deleted records.
+Provides the ability to recover soft-deleted records.
 
-## Assumptions
+# 📌 **Assumptions**
 
 * Roles are assigned during registration.
 * Admin users are trusted to manage data and roles.
 * Soft delete is preferred to avoid permanent data loss.
 
-## Tradeoffs
+# 🔄 **Tradeoffs**
 
 * The project uses a simple structure (routes + controllers) instead of a more layered architecture to keep things easy to follow.
 * Role assignment is not restricted at the API level during registration (in a real system, this would be controlled).
 
 
-## Author
+## **Author**
 
-Shamba Saha
+### Shamba Saha
