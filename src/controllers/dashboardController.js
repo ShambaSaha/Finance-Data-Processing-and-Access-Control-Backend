@@ -1,23 +1,26 @@
 const Record = require("../models/Record");
+const mongoose = require("mongoose");
 
 // ================== SUMMARY ==================
 exports.summary = async (req, res) => {
   try {
+    const userId = new mongoose.Types.ObjectId(req.user.id);
+
     // 🔹 Total Income
     const income = await Record.aggregate([
-      { $match: { type: "income", isDeleted: false } },
+      { $match: { type: "income", isDeleted: false, userId } },
       { $group: { _id: null, total: { $sum: "$amount" } } }
     ]);
 
     // 🔹 Total Expense
     const expense = await Record.aggregate([
-      { $match: { type: "expense", isDeleted: false } },
+      { $match: { type: "expense", isDeleted: false, userId } },
       { $group: { _id: null, total: { $sum: "$amount" } } }
     ]);
 
     // 🔹 Category-wise totals
     const categoryTotals = await Record.aggregate([
-      { $match: { isDeleted: false } },
+      { $match: { isDeleted: false, userId } },
       {
         $group: {
           _id: "$category",
@@ -35,7 +38,7 @@ exports.summary = async (req, res) => {
 
     // 🔹 Monthly trends (income vs expense)
     const monthlyRaw = await Record.aggregate([
-      { $match: { isDeleted: false } },
+      { $match: { isDeleted: false, userId, date: { $ne: null } } },
       {
         $group: {
           _id: {
@@ -73,10 +76,13 @@ exports.summary = async (req, res) => {
       }
     });
 
-    const monthlyTrends = Object.values(monthlyMap);
+    // ✅ Sort months properly
+    const monthlyTrends = Object.values(monthlyMap).sort(
+      (a, b) => months.indexOf(a.month) - months.indexOf(b.month)
+    );
 
     // 🔹 Recent activity
-    const recent = await Record.find({ isDeleted: false })
+    const recent = await Record.find({ isDeleted: false, userId })
       .sort({ createdAt: -1 })
       .limit(5);
 
@@ -100,8 +106,10 @@ exports.summary = async (req, res) => {
 // ================== CATEGORY ==================
 exports.categorySummary = async (req, res) => {
   try {
+    const userId = new mongoose.Types.ObjectId(req.user.id);
+
     const data = await Record.aggregate([
-      { $match: { isDeleted: false } },
+      { $match: { isDeleted: false, userId } },
       {
         $group: {
           _id: "$category",
@@ -128,7 +136,9 @@ exports.categorySummary = async (req, res) => {
 // ================== RECENT ==================
 exports.recent = async (req, res) => {
   try {
-    const data = await Record.find({ isDeleted: false })
+    const userId = new mongoose.Types.ObjectId(req.user.id);
+
+    const data = await Record.find({ isDeleted: false, userId })
       .sort({ createdAt: -1 })
       .limit(5);
 
@@ -143,8 +153,10 @@ exports.recent = async (req, res) => {
 // ================== MONTHLY ==================
 exports.monthlyTrends = async (req, res) => {
   try {
+    const userId = new mongoose.Types.ObjectId(req.user.id);
+
     const data = await Record.aggregate([
-      { $match: { isDeleted: false } },
+      { $match: { isDeleted: false, userId, date: { $ne: null } } },
       {
         $group: {
           _id: {
@@ -182,7 +194,12 @@ exports.monthlyTrends = async (req, res) => {
       }
     });
 
-    res.json(Object.values(result));
+    // ✅ Sorted response
+    res.json(
+      Object.values(result).sort(
+        (a, b) => months.indexOf(a.month) - months.indexOf(b.month)
+      )
+    );
 
   } catch (err) {
     res.status(500).json({ message: err.message });
